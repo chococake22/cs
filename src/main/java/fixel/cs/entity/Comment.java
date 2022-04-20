@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 public class Comment {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
-    private Long id;
+    @Column(name = "comment_no")
+    private Long no;
 
     // 작성자
     private Long regUserNo;
@@ -27,6 +27,6 @@ public class Comment {
     private LocalDateTime regDt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_id")
+    @JoinColumn(name = "request_no")
     private Request request;
 }

@@ -20,8 +20,8 @@ public class Request extends TimeEntity {
 
     // 문의번호
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "request_id")
-    private Long id;
+    @Column(name = "request_no")
+    private Long no;
 
     // 제목
     private String title;
@@ -39,14 +39,6 @@ public class Request extends TimeEntity {
     // 내용
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
-
-    // 파일 첨부
-    @OneToMany(mappedBy = "request")
-    private List<AttachedFile> fileList;
-
-    // 변경 이력
-    @OneToMany(mappedBy = "updaterecord_id")
-    private List<UpdateRecord> updateRecord;
 
     // 프로젝트 항목
     @Enumerated(EnumType.STRING)

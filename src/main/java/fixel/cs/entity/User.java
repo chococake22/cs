@@ -14,7 +14,7 @@ public class User extends TimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_no")
-    private Long id;
+    private Long no;
 
     // 회원이메일(아이디)
     private String userEmail;

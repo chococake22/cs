@@ -33,8 +33,6 @@ public class RequestService {
                 .dirUserNo(2L)
                 .relatedUserNos(new ArrayList<>())
                 .content(requestRegRequest.getContent())
-                .fileList(new ArrayList<>())
-                .updateRecord(new ArrayList<>())
                 .projectType(requestRegRequest.getProjectType())
                 .statusCd(StatusCd.NORMAL)
                 .requestType(RequestType.REQUEST_DATA)

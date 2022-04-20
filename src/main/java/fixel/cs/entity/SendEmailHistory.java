@@ -14,8 +14,8 @@ import javax.persistence.*;
 public class SendEmailHistory {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sendmailhistory_id")
-    private Long id;
+    @Column(name = "sendmailhistory_no")
+    private Long no;
 
     private String userEmail;
 

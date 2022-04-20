@@ -15,12 +15,12 @@ public class AttachedFile {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attachedfile_no")
-    private Long id;
+    private Long no;
     private String fileName;
     private String filePath;
     private LocalDateTime regDt;
 
     @ManyToOne
-    @JoinColumn(name = "request_id")
+    @JoinColumn(name = "request_no")
     private Request request;
 }

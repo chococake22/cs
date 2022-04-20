@@ -26,6 +26,4 @@ public class RequestController {
     public ResponseEntity createEnquiry(@RequestBody RequestRegisterRequest requestRegRequest) {
         return requestService.addRequest(requestRegRequest);
     }
-
-
 }
