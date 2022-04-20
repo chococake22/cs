@@ -1,6 +1,6 @@
 package fixel.cs.controller;
 
-import fixel.cs.dto.RequestRegisterRequest;
+import fixel.cs.dto.ReqRegisterRequest;
 import fixel.cs.service.RequestService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class RequestController {
 
     @ApiOperation(value = "요청사항 생성", notes = "요청사항을 생성합니다.")
     @PostMapping
-    public ResponseEntity createEnquiry(@RequestBody RequestRegisterRequest requestRegRequest) {
+    public ResponseEntity createEnquiry(@RequestBody ReqRegisterRequest requestRegRequest) {
         return requestService.addRequest(requestRegRequest);
     }
 }

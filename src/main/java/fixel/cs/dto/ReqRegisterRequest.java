@@ -6,12 +6,18 @@ import fixel.cs.entity.User;
 import fixel.cs.type.Level;
 import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-public class RequestRegisterRequest {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ReqRegisterRequest {
 
     private String title;
     private User director;
@@ -22,6 +28,6 @@ public class RequestRegisterRequest {
     private boolean checked;
     private ProjectType projectType;
     private RequestType requestType;
-    private Level importanceType;
+    private Level level;
 
 }
