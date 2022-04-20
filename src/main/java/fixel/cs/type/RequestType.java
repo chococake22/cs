@@ -1,0 +1,7 @@
+package fixel.cs.type;
+
+public enum RequestType {
+
+    ERROR_CORRECTION, NEW_DEVELOPMENT, REQUEST_DATA, REQUEST_AUTHENTICATION, CODE_REVIEW
+
+}
