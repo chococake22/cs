@@ -1,11 +1,11 @@
-package fixel.cs.dto;
+package fixel.cs.dto.request;
 
 import fixel.cs.entity.AttachedFile;
-import fixel.cs.entity.UpdateRecord;
 import fixel.cs.entity.User;
 import fixel.cs.type.Level;
 import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
+import fixel.cs.type.StatusCd;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,17 +17,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReqRegisterRequest {
+public class ReqUpdateRequest {
 
     private String title;
     private User director;
     private List<Long> relatedUserNos;
     private String content;
     private List<AttachedFile> fileList;
-    private UpdateRecord updateRecord;
-    private boolean checked;
     private ProjectType projectType;
     private RequestType requestType;
+    private StatusCd statusCd;
     private Level level;
-
 }

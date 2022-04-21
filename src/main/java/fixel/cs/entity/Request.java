@@ -1,13 +1,16 @@
 package fixel.cs.entity;
 
+import fixel.cs.dto.request.ReqUpdateRequest;
 import fixel.cs.type.Level;
 import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
 import fixel.cs.type.StatusCd;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity(name = "Request")
@@ -16,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Request extends TimeEntity {
+public class Request {
 
     // 문의번호
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,4 +59,19 @@ public class Request extends TimeEntity {
     @Enumerated(EnumType.STRING)
     private Level level;
 
+    // 등록일자
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime regDt;
+
+    public void update(ReqUpdateRequest request) {
+        this.regUserNo = regUserNo;
+        this.dirUserNo = dirUserNo;
+        this.relatedUserNos = relatedUserNos;
+        this.content = content;
+        this.projectType = projectType;
+        this.statusCd = statusCd;
+        this.requestType = requestType;
+        this.level = level;
+    }
 }
