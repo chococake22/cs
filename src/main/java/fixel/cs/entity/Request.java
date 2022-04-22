@@ -65,13 +65,12 @@ public class Request {
     private LocalDateTime regDt;
 
     public void update(ReqUpdateRequest request) {
-        this.regUserNo = regUserNo;
-        this.dirUserNo = dirUserNo;
-        this.relatedUserNos = relatedUserNos;
-        this.content = content;
-        this.projectType = projectType;
-        this.statusCd = statusCd;
-        this.requestType = requestType;
-        this.level = level;
+        this.dirUserNo = request.getDirector().getNo();
+        this.relatedUserNos = request.getRelatedUserNos();
+        this.content = request.getContent();
+        this.projectType = request.getProjectType();
+        this.statusCd = request.getStatusCd();
+        this.requestType = request.getRequestType();
+        this.level = request.getLevel();
     }
 }

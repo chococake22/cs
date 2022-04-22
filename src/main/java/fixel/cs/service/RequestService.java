@@ -30,6 +30,10 @@ public class RequestService {
 
     private final RequestRepository requestRepository;
 
+    private static final Long userNo = 2L;
+    private static final String userEmail = "test@test.com";
+    private static final String password = "1234";
+
     // 개별 요청사항 상세보기
     @Transactional
     public ResponseEntity getRequestInfoOne(Long reqNo) {
@@ -75,29 +79,34 @@ public class RequestService {
     }
 
     // 요청사항 수정
-//    @Transactional
-//    public ResponseEntity updateRequest(Long reqNo, ReqUpdateRequest reqUpdateRequest) {
-//
-//        // 로그인한 사용자와 담당자가 같으면 요청 수정 가능
-//        // 토큰을 이용해서 로그인한 사용자
-//
-//        try {
-//            if () {
-//                Request request = Optional.ofNullable(requestRepository.getById(reqNo))
-//                        .orElseThrow(IllegalArgumentException::new);
-//
-//                request.update(reqUpdateRequest);
-//
-//                return ResponseEntity.status(HttpStatus.OK).body(request);
-//            } else {
-//                throw new IllegalArgumentException("잘못된 접근입니다.");
-//            }
-//        } catch (Exception e) {
-//            log.info(e.getMessage());
-//        }
-//
-//        return new ResponseEntity("????", HttpStatus.BAD_REQUEST);
-//    }
+    @Transactional
+    public ResponseEntity updateRequest(Long reqNo, ReqUpdateRequest reqUpdateRequest) {
+
+        // 로그인한 사용자와 담당자가 같으면 요청 수정 가능
+        // 토큰을 이용해서 로그인한 사용자
+
+        Request request = Optional.ofNullable(requestRepository.getById(reqNo))
+                .orElseThrow(IllegalArgumentException::new);
+
+        log.info("reqUpdateRequest.getDir.getNo = {}", reqUpdateRequest.getDirector().getNo());
+
+        try {
+            // 해당 요청의 담당자의 번호가 로그인한 회원의 번호와 일치할 경우
+            if (reqUpdateRequest.getDirector().getNo().equals(2L)) {
+
+                request.update(reqUpdateRequest);
+
+                return ResponseEntity.status(HttpStatus.OK).body(request);
+            } else {
+                throw new IllegalArgumentException("잘못된 접근입니다.");
+            }
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        }
+
+
+        return new ResponseEntity("????", HttpStatus.BAD_REQUEST);
+    }
 
     // 미해결 요청사항 조회
     // 상태코드가 CLOSE가 아닌 것은 다 가져온다.

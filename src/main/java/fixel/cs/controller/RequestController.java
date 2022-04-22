@@ -42,10 +42,22 @@ public class RequestController {
         return requestService.addRequest(reqRegisterRequest);
     }
 
-//    @ApiOperation(value = "요청사항 수정", notes = "담당자가 요청사항을 수정합니다.")
-//    @PutMapping("/{reqNo}")
-//    public ResponseEntity updateRequest(@PathVariable Long reqNo, @RequestBody ReqUpdateRequest reqUpdateRequest) {
-//        return requestService.updateRequest(reqNo, reqUpdateRequest);
-//    }
+    @ApiOperation(value = "요청사항 수정", notes = "담당자가 요청사항을 수정합니다.")
+    @PutMapping("/{reqNo}")
+    public ResponseEntity updateRequest(@PathVariable Long reqNo, @RequestBody ReqUpdateRequest reqUpdateRequest) {
+        return requestService.updateRequest(reqNo, reqUpdateRequest);
+    }
+
+    @ApiOperation(value = "담당자 변경", notes = "담당자를 변경합니다.")
+    @PutMapping("/{reqNo}/director")
+    public ResponseEntity updateDirector(@PathVariable Long reqNo, @RequestBody ReqUpdateRequest reqUpdateRequest) {
+        return requestService.updateRequest(reqNo, reqUpdateRequest);
+    }
+
+    @ApiOperation(value = "관련자 변경", notes = "관련자를 변경합니다.")
+    @PutMapping("/{reqNo}/reluser")
+    public ResponseEntity updateRelUser(@PathVariable Long reqNo, @RequestBody ReqUpdateRequest reqUpdateRequest) {
+        return requestService.updateRequest(reqNo, reqUpdateRequest);
+    }
 
 }
