@@ -5,12 +5,14 @@ import fixel.cs.type.Level;
 import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
 import fixel.cs.type.StatusCd;
+import fixel.cs.util.ListToConverter;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "Request")
@@ -37,7 +39,7 @@ public class Request {
 
     // 문의별관련자
     @ElementCollection(fetch = FetchType.LAZY)
-    private List<Long> relatedUserNos;
+    private List<Long> relatedUserNos = new ArrayList<>();
 
     // 내용
     @Column(columnDefinition = "TEXT", nullable = false)

@@ -17,10 +17,13 @@ public class AttachedFile {
     @Column(name = "attachedfile_no")
     private Long no;
     private String fileName;
+    private String fileId;
     private String filePath;
     private LocalDateTime regDt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_no")
     private Request request;
+
+
 }

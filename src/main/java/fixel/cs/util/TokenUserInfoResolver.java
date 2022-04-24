@@ -1,4 +1,4 @@
-package fixel.cs.controller;
+package fixel.cs.util;
 
 import fixel.cs.auth.TokenUser;
 import fixel.cs.auth.vo.TokenUserInfo;

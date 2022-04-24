@@ -5,9 +5,12 @@ import fixel.cs.dto.user.UserLoginRequest;
 import fixel.cs.entity.User;
 import fixel.cs.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +42,12 @@ public class UserService {
     @Transactional
     public ResponseEntity login(UserLoginRequest request) {
 
-        return ResponseEntity.ok().body(request);
+        Optional<User> user = userRepository.findByUserEmailAndPassword(request.getUserEmail(), request.getPassword());
 
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user);
+        } else {
+            throw new IllegalArgumentException("해당하는 회원이 없습니다.");
+        }
     }
 }

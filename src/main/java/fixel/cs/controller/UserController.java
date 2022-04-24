@@ -21,7 +21,7 @@ public class UserController {
 
     @ApiOperation(value = "회원 생성", notes = "회원을 생성합니다.")
     @PostMapping("/signup")
-    public ResponseEntity joi(@RequestBody UserAddRequest request) {
+    public ResponseEntity addUser(@RequestBody UserAddRequest request) {
         return userService.addUser(request);
     }
 
@@ -30,7 +30,4 @@ public class UserController {
     public ResponseEntity login(@RequestBody UserLoginRequest request) {
         return userService.login(request);
     }
-
-
-
 }

@@ -26,7 +26,7 @@ public class UpdateRecord {
     // 변경날짜
     private LocalDateTime updateDt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_no")
     private Request request;
 }

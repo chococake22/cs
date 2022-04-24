@@ -3,24 +3,35 @@ package fixel.cs.service;
 import fixel.cs.dto.request.ReqReadRequest;
 import fixel.cs.dto.request.ReqRegisterRequest;
 import fixel.cs.dto.request.ReqUpdateRequest;
-import fixel.cs.dto.user.UserLoginRequest;
+import fixel.cs.entity.AttachedFile;
 import fixel.cs.entity.Request;
 import fixel.cs.entity.User;
+import fixel.cs.repository.FileRepository;
 import fixel.cs.repository.RequestRepository;
 import fixel.cs.type.Level;
 import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
 import fixel.cs.type.StatusCd;
+import fixel.cs.util.FileWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +40,8 @@ import java.util.stream.Collectors;
 public class RequestService {
 
     private final RequestRepository requestRepository;
+    private final FileRepository fileRepository;
+    private final FileWriter fileWriter;
 
     private static final Long userNo = 2L;
     private static final String userEmail = "test@test.com";
@@ -58,25 +71,62 @@ public class RequestService {
 
     // 요청사항 생성
     @Transactional
-    public ResponseEntity addRequest(ReqRegisterRequest requestRegRequest) {
+    public ResponseEntity addRequest(ReqRegisterRequest reqRegRequest, List<MultipartFile> files) throws IOException {
 
-        Request request = Request.builder()
-                .title(requestRegRequest.getTitle())
-                .regUserNo(1L)
-                .dirUserNo(2L)
-                .relatedUserNos(new ArrayList<>())
-                .content(requestRegRequest.getContent())
-                .projectType(requestRegRequest.getProjectType())
-                .statusCd(StatusCd.CHECK)
-                .requestType(RequestType.REQUEST_DATA)
-                .level(Level.EMERGENCY)
-                .regDt(requestRegRequest.getRegDt())
-                .build();
+            Request request = Request.builder()
+                    .title(reqRegRequest.getTitle())
+                    .regUserNo(1L)
+                    .dirUserNo(2L)
+                    .content(reqRegRequest.getContent())
+                    .relatedUserNos(reqRegRequest.getRelatedUserNos())
+                    .projectType(reqRegRequest.getProjectType())
+                    .statusCd(StatusCd.CLOSE)
+                    .requestType(RequestType.REQUEST_DATA)
+                    .level(Level.EMERGENCY)
+                    .regDt(LocalDateTime.now())
+                    .build();
 
-        requestRepository.save(request);
+            requestRepository.save(request);
+
+
+        for (MultipartFile file : files) {
+
+            // 파일 고유 id
+            String fileId = UUID.randomUUID().toString();
+
+            // 파일 저장 경로
+            String filePath = fileWriter.getFilePath(fileId, file);
+            log.info("filePath: {}", filePath);
+
+            // 해당 파일을 지정 경로에 저장해라
+            fileWriter.writeFile(file, filePath);
+
+            AttachedFile attachedFile = AttachedFile.builder()
+                    .fileName(file.getName())
+                    .fileId(fileId)
+                    .filePath(filePath)
+                    .regDt(LocalDateTime.now())
+                    .request(request)
+                    .build();
+
+            fileRepository.save(attachedFile);
+        }
 
         return ResponseEntity.ok().body(request);
     }
+
+//    public AttachedFile upload(MultipartFile sourceFile) {
+//
+//
+//
+//        return AttachedFile.builder()
+//                .fileName(sourceFile.getName())
+//                .fileId(fileId)
+//                .filePath(filePath)
+//                .request()
+//                .build();
+//
+//    }
 
     // 요청사항 수정
     @Transactional
@@ -92,7 +142,7 @@ public class RequestService {
 
         try {
             // 해당 요청의 담당자의 번호가 로그인한 회원의 번호와 일치할 경우
-            if (reqUpdateRequest.getDirector().getNo().equals(2L)) {
+            if (reqUpdateRequest.getDirector().getNo().equals(3L)) {
 
                 request.update(reqUpdateRequest);
 
@@ -104,26 +154,25 @@ public class RequestService {
             log.info(e.getMessage());
         }
 
-
         return new ResponseEntity("????", HttpStatus.BAD_REQUEST);
     }
 
     // 미해결 요청사항 조회
     // 상태코드가 CLOSE가 아닌 것은 다 가져온다.
-//    @Transactional
-//    public ResponseEntity<List<ReqReadRequest>> getNotEndRequestList(StatusCd statusCd) {
-//
-//
-//        return ResponseEntity.ok().body();
-//
-//    }
-
-    // 해결된 요청사항 조회
-    // 상태코드가 CLOSE인 것 다 가져오기
     @Transactional
-    public ResponseEntity<List<ReqReadRequest>> getEndRequestList() {
+    public ResponseEntity<List<ReqReadRequest>> getNotEndRequestList(Pageable pageable) {
 
-        List<Request> requestList = requestRepository.findAllByStatusCd(StatusCd.CLOSE);
+        int page;
+
+        if(pageable.getPageNumber() == 0) {
+            page = 0;
+        } else {
+            page = pageable.getPageNumber() - 1;
+        }
+
+        pageable = (Pageable) PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "regDt"));
+
+        List<Request> requestList = requestRepository.findAllByStatusCdIsNot(StatusCd.CLOSE, pageable);
 
         List<ReqReadRequest> reqReadRequestList
                 = requestList.stream()
@@ -134,14 +183,49 @@ public class RequestService {
                         request.getContent(),
                         new ArrayList<>(),
                         ProjectType.APL,
-                        StatusCd.CHECK,
+                        request.getStatusCd(),
+                        RequestType.REQUEST_DATA,
+                        Level.EMERGENCY,
+                        request.getRegDt()
+                )).collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(reqReadRequestList);
+
+    }
+
+    // 해결된 요청사항 조회
+    // 상태코드가 CLOSE인 것 다 가져오기
+    @Transactional
+    public ResponseEntity<List<ReqReadRequest>> getEndRequestList(Pageable pageable) {
+
+        int page;
+
+        if(pageable.getPageNumber() == 0) {
+            page = 0;
+        } else {
+            page = pageable.getPageNumber() - 1;
+        }
+
+        pageable = (Pageable) PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "regDt"));
+
+        List<Request> requestList = requestRepository.findAllByStatusCd(StatusCd.CLOSE, pageable);
+
+        List<ReqReadRequest> reqReadRequestList
+                = requestList.stream()
+                .map(request -> new ReqReadRequest(
+                        request.getTitle(),
+                        new User(),
+                        new ArrayList<>(),
+                        request.getContent(),
+                        new ArrayList<>(),
+                        ProjectType.APL,
+                        StatusCd.CLOSE,
                         RequestType.REQUEST_DATA,
                         Level.EMERGENCY,
                         request.getRegDt()
                         )).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(reqReadRequestList);
-
     }
 
     // 미해결이면서 나에게 할당된 요청사항 조회
@@ -158,4 +242,7 @@ public class RequestService {
 //        return ResponseEntity.ok();
 //
 //    }
+
+
+
 }
