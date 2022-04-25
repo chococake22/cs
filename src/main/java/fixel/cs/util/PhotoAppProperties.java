@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class PhotoAppProperties {
 
     // properties를 이용해서 기본 경로를 지정한다.
-    @Value("{FileUploadApp.file.defaultPath}")
+    @Value("${FileUploadApp.file.defaultPath}")
     private String defaultPath;
 
 }

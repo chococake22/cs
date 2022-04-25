@@ -3,11 +3,12 @@ package fixel.cs.controller;
 import fixel.cs.dto.request.ReqRegisterRequest;
 import fixel.cs.dto.request.ReqUpdateRequest;
 import fixel.cs.service.RequestService;
-import fixel.cs.type.StatusCd;
+
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/request")
 @RequiredArgsConstructor
+@Slf4j
 public class RequestController {
 
     private final RequestService requestService;
@@ -43,7 +45,7 @@ public class RequestController {
 
     @ApiOperation(value = "요청사항 생성", notes = "요청사항을 생성합니다.")
     @PostMapping("/add")
-    public ResponseEntity createRequest(ReqRegisterRequest reqRegisterRequest, @RequestPart("file") List<MultipartFile> files) throws IOException {
+    public ResponseEntity createRequest(ReqRegisterRequest reqRegisterRequest, @RequestPart(required = false) List<MultipartFile> files) throws IOException {
         return requestService.addRequest(reqRegisterRequest, files);
     }
 

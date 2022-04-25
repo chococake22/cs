@@ -6,14 +6,11 @@ import fixel.cs.type.Level;
 import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
 import fixel.cs.type.StatusCd;
-import fixel.cs.util.ListToConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
-import javax.persistence.Convert;
 import java.time.LocalDateTime;
 import java.util.List;
 

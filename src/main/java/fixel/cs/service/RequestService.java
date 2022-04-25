@@ -1,5 +1,6 @@
 package fixel.cs.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fixel.cs.dto.request.ReqReadRequest;
 import fixel.cs.dto.request.ReqRegisterRequest;
 import fixel.cs.dto.request.ReqUpdateRequest;
@@ -16,6 +17,7 @@ import fixel.cs.util.FileWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +45,9 @@ public class RequestService {
     private final RequestRepository requestRepository;
     private final FileRepository fileRepository;
     private final FileWriter fileWriter;
+    private final ObjectMapper objectMapper;
 
+    // 임시 계정
     private static final Long userNo = 2L;
     private static final String userEmail = "test@test.com";
     private static final String password = "1234";
@@ -69,71 +74,76 @@ public class RequestService {
         return ResponseEntity.ok().body(reqRegisterRequest);
     }
 
-    // 요청사항 생성
+    // 요청사항 생성(파일 같이 첨부)
     @Transactional
     public ResponseEntity addRequest(ReqRegisterRequest reqRegRequest, List<MultipartFile> files) throws IOException {
 
-            Request request = Request.builder()
+        Request request = Request.builder()
                     .title(reqRegRequest.getTitle())
-                    .regUserNo(1L)
-                    .dirUserNo(2L)
+                    .regUserNo(userNo)
+                    .dirUserNo(userNo)
                     .content(reqRegRequest.getContent())
                     .relatedUserNos(reqRegRequest.getRelatedUserNos())
                     .projectType(reqRegRequest.getProjectType())
-                    .statusCd(StatusCd.CLOSE)
-                    .requestType(RequestType.REQUEST_DATA)
-                    .level(Level.EMERGENCY)
+                    .statusCd(reqRegRequest.getStatusCd())
+                    .requestType(reqRegRequest.getRequestType())
+                    .level(reqRegRequest.getLevel())
                     .regDt(LocalDateTime.now())
                     .build();
 
-            requestRepository.save(request);
+        requestRepository.save(request);
 
+        if (files != null) {
 
-        for (MultipartFile file : files) {
+            for (MultipartFile file : files) {
 
-            // 파일 고유 id
-            String fileId = UUID.randomUUID().toString();
+                String contentType = file.getContentType();
 
-            // 파일 저장 경로
-            String filePath = fileWriter.getFilePath(fileId, file);
-            log.info("filePath: {}", filePath);
+                String originalFileExtension = "";
 
-            // 해당 파일을 지정 경로에 저장해라
-            fileWriter.writeFile(file, filePath);
+                if (contentType.contains("image/jpeg")) {
+                    originalFileExtension = ".jpeg";
+                } else if (contentType.contains("image/png")) {
+                    originalFileExtension = ".png";
+                } else if (contentType.contains("image/gif")) {
+                    originalFileExtension = ".gif";
+                } else {
+                    log.info("file format : " + contentType);
+                    throw new IOException("확장자 변경 필요");
+                }
 
-            AttachedFile attachedFile = AttachedFile.builder()
-                    .fileName(file.getName())
-                    .fileId(fileId)
-                    .filePath(filePath)
-                    .regDt(LocalDateTime.now())
-                    .request(request)
-                    .build();
+                // 파일 고유 id
+                String fileId = UUID.randomUUID().toString();
 
-            fileRepository.save(attachedFile);
+                // 파일 저장 경로 생성
+                String filePath = fileWriter.getFilePath(fileId, file);
+                log.info("filePath: {}", filePath);
+
+                // 해당 파일을 지정된 경로에 저장
+                fileWriter.writeFile(file, filePath);
+
+                AttachedFile attachedFile = AttachedFile.builder()
+                        .fileName(file.getName())
+                        .fileId(fileId)
+                        .filePath(filePath)
+                        .regDt(LocalDateTime.now())
+                        .request(request)
+                        .build();
+
+                fileRepository.save(attachedFile);
+            }
         }
 
         return ResponseEntity.ok().body(request);
     }
 
-//    public AttachedFile upload(MultipartFile sourceFile) {
-//
-//
-//
-//        return AttachedFile.builder()
-//                .fileName(sourceFile.getName())
-//                .fileId(fileId)
-//                .filePath(filePath)
-//                .request()
-//                .build();
-//
-//    }
 
     // 요청사항 수정
     @Transactional
     public ResponseEntity updateRequest(Long reqNo, ReqUpdateRequest reqUpdateRequest) {
 
         // 로그인한 사용자와 담당자가 같으면 요청 수정 가능
-        // 토큰을 이용해서 로그인한 사용자
+        // 토큰을 이용해서 로그인한 사용자(추후 추가)
 
         Request request = Optional.ofNullable(requestRepository.getById(reqNo))
                 .orElseThrow(IllegalArgumentException::new);

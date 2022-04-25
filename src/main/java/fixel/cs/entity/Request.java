@@ -5,7 +5,7 @@ import fixel.cs.type.Level;
 import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
 import fixel.cs.type.StatusCd;
-import fixel.cs.util.ListToConverter;
+
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
