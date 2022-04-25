@@ -59,10 +59,10 @@ public class RequestService {
         Request request = Optional.ofNullable(requestRepository.getById(reqNo))
                 .orElseThrow(IllegalArgumentException::new);
 
-        ReqRegisterRequest reqRegisterRequest = ReqRegisterRequest.builder()
+        ReqReadRequest reqReadRequest = ReqReadRequest.builder()
                 .title(request.getTitle())  // 제목
-                .director(new User())   // 담당자
-                .relatedUserNos(new ArrayList<>())  // 관련자
+                .dirUserNo(request.getDirUserNo())   // 담당자
+                .relatedUserNos(request.getRelatedUserNos())  // 관련자
                 .content(request.getContent())  // 내용
                 .projectType(ProjectType.APL)   // 프로젝트 항목
                 .requestType(RequestType.REQUEST_DATA)  // 요청 타입
@@ -71,7 +71,7 @@ public class RequestService {
                 .regDt(request.getRegDt())
                 .build();
 
-        return ResponseEntity.ok().body(reqRegisterRequest);
+        return ResponseEntity.ok().body(reqReadRequest);
     }
 
     // 요청사항 생성(파일 같이 첨부)
@@ -80,8 +80,8 @@ public class RequestService {
 
         Request request = Request.builder()
                     .title(reqRegRequest.getTitle())
-                    .regUserNo(userNo)
-                    .dirUserNo(userNo)
+                    .regUserNo(reqRegRequest.getRegUserNo())
+                    .dirUserNo(reqRegRequest.getDirUserNo())
                     .content(reqRegRequest.getContent())
                     .relatedUserNos(reqRegRequest.getRelatedUserNos())
                     .projectType(reqRegRequest.getProjectType())
@@ -123,7 +123,7 @@ public class RequestService {
                 fileWriter.writeFile(file, filePath);
 
                 AttachedFile attachedFile = AttachedFile.builder()
-                        .fileName(file.getName())
+                        .fileName(file.getOriginalFilename())
                         .fileId(fileId)
                         .filePath(filePath)
                         .regDt(LocalDateTime.now())
@@ -148,11 +148,11 @@ public class RequestService {
         Request request = Optional.ofNullable(requestRepository.getById(reqNo))
                 .orElseThrow(IllegalArgumentException::new);
 
-        log.info("reqUpdateRequest.getDir.getNo = {}", reqUpdateRequest.getDirector().getNo());
+        log.info("reqUpdateRequest.getDir.getNo = {}", reqUpdateRequest.getDirUserNo());
 
         try {
             // 해당 요청의 담당자의 번호가 로그인한 회원의 번호와 일치할 경우
-            if (reqUpdateRequest.getDirector().getNo().equals(3L)) {
+            if (reqUpdateRequest.getDirUserNo().equals(3L)) {
 
                 request.update(reqUpdateRequest);
 
@@ -188,7 +188,7 @@ public class RequestService {
                 = requestList.stream()
                 .map(request -> new ReqReadRequest(
                         request.getTitle(),
-                        new User(),
+                        request.getDirUserNo(),
                         new ArrayList<>(),
                         request.getContent(),
                         new ArrayList<>(),
@@ -224,7 +224,7 @@ public class RequestService {
                 = requestList.stream()
                 .map(request -> new ReqReadRequest(
                         request.getTitle(),
-                        new User(),
+                        request.getDirUserNo(),
                         new ArrayList<>(),
                         request.getContent(),
                         new ArrayList<>(),

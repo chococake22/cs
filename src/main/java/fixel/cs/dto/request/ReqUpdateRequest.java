@@ -20,7 +20,7 @@ import java.util.List;
 public class ReqUpdateRequest {
 
     private String title;
-    private User director;
+    private Long dirUserNo;
     private List<Long> relatedUserNos;
     private String content;
     private List<AttachedFile> fileList;

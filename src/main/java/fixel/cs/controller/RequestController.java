@@ -51,7 +51,7 @@ public class RequestController {
 
     @ApiOperation(value = "요청사항 수정", notes = "담당자가 요청사항을 수정합니다.")
     @PutMapping("/{reqNo}")
-    public ResponseEntity updateRequest(@PathVariable Long reqNo, @RequestBody ReqUpdateRequest reqUpdateRequest) {
+    public ResponseEntity updateRequest(@PathVariable Long reqNo, ReqUpdateRequest reqUpdateRequest) {
         return requestService.updateRequest(reqNo, reqUpdateRequest);
     }
 
