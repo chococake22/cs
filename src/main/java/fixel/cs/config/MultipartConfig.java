@@ -21,7 +21,7 @@ public class MultipartConfig {
     @Value("${FileUploadApp.file.defaultPath}")
     public String defaultPath = "";
 
-    @Bean
+    @Bean(name = "multipartResolver")
     public CommonsMultipartResolver multipartResolver() {
 
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();

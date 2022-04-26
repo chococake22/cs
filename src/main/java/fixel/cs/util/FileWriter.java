@@ -38,7 +38,7 @@ public class FileWriter {
 
     // 기본 경로에서 경로 얻기
     public String getFilePath(String fileId, MultipartFile sourceFile) {
-        return photoAppProperties.getDefaultPath() + "/" + dateStr() + "/" + fileId + "_" + sourceFile.getOriginalFilename();
+        return photoAppProperties.getDefaultPath() +  "/" + fileId + "_" + sourceFile.getOriginalFilename();
     }
 
     private static String getMimeType(String filePath) {

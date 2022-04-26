@@ -27,7 +27,7 @@ public class Request {
     // 문의번호
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "request_no")
-    private Long no;
+    private Long requestNo; // db와 바로 매치될 수 있게 카멜로 변경
 
     // 제목
     private String title;
@@ -39,8 +39,8 @@ public class Request {
     private Long dirUserNo;
 
     // 문의별관련자
-    @ElementCollection(fetch = FetchType.LAZY)
-    private List<Long> relatedUserNos = new ArrayList<>();
+    @ElementCollection
+    private List<Long> relatedUserNos;
 
     // 내용
     @Column(columnDefinition = "TEXT", nullable = false)

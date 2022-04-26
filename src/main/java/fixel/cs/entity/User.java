@@ -28,5 +28,6 @@ public class User {
     private String username;
 
     // 비밀번호 변경여부(y/n)
+    @JsonIgnore
     private String pwdChangedYn;
 }

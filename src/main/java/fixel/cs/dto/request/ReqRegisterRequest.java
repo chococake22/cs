@@ -22,8 +22,7 @@ public class ReqRegisterRequest {
 
     private Long no;
     private String title;
-    private Long regUserNo;
-    private Long dirUserNo;
+    private User director;
     private List<Long> relatedUserNos;
     private String content;
     private ProjectType projectType;
