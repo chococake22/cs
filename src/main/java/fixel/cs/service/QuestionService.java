@@ -1,14 +1,15 @@
 package fixel.cs.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fixel.cs.dto.request.ReqReadRequest;
-import fixel.cs.dto.request.ReqRegisterRequest;
-import fixel.cs.dto.request.ReqUpdateRequest;
+import fixel.cs.dto.request.QuesReadRequest;
+import fixel.cs.dto.request.QuesRegisterRequest;
+import fixel.cs.dto.request.QuesUpdateRequest;
 import fixel.cs.entity.AttachedFile;
-import fixel.cs.entity.Request;
-import fixel.cs.entity.User;
+import fixel.cs.entity.Question;
+
 import fixel.cs.repository.FileRepository;
-import fixel.cs.repository.RequestRepository;
+import fixel.cs.repository.QuestionRepository;
+
 import fixel.cs.type.Level;
 import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
@@ -17,6 +18,7 @@ import fixel.cs.util.FileWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,37 +40,32 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RequestService {
+public class QuestionService {
 
-    private final RequestRepository requestRepository;
+    private final QuestionRepository questionRepository;
     private final FileRepository fileRepository;
     private final FileWriter fileWriter;
     private final ObjectMapper objectMapper;
 
-    // 임시 계정(로그인이 되었다고 가정)
-
     // 로그인 이후 과정까지 생각해서 추가
-    private static final Long userNo = 2L;
-    private static final String userEmail = "test@test.com";
-    private static final String password = "1234";
 
     // 개별 요청사항 상세보기
     @Transactional
-    public ResponseEntity getRequestInfoOne(Long reqNo) {
+    public ResponseEntity getQuestionInfoOne(Long reqNo) {
 
-        Request request = Optional.ofNullable(requestRepository.getById(reqNo))
+        Question question = Optional.ofNullable(questionRepository.getById(reqNo))
                 .orElseThrow(IllegalArgumentException::new);
 
-        ReqReadRequest reqReadRequest = ReqReadRequest.builder()
-                .title(request.getTitle())  // 제목
-                .dirUserNo(request.getDirUserNo())   // 담당자
-                .relatedUserNos(request.getRelatedUserNos())  // 관련자
-                .content(request.getContent())  // 내용
+        QuesReadRequest reqReadRequest = QuesReadRequest.builder()
+                .title(question.getTitle())  // 제목
+                .dirUserNo(question.getDirUserNo())   // 담당자
+                .relatedUserNos(question.getRelatedUserNos())  // 관련자
+                .content(question.getContent())  // 내용
                 .projectType(ProjectType.APL)   // 프로젝트 항목
                 .requestType(RequestType.REQUEST_DATA)  // 요청 타입
                 .statusCd(StatusCd.OPEN)
                 .level(Level.EMERGENCY) // 중요도
-                .regDt(request.getRegDt())
+                .regDt(question.getRegDt())
                 .build();
 
         return ResponseEntity.ok().body(reqReadRequest);
@@ -76,22 +73,22 @@ public class RequestService {
 
     // 요청사항 생성(파일 같이 첨부)
     @Transactional
-    public ResponseEntity addRequest(ReqRegisterRequest reqRegRequest, List<MultipartFile> files) throws IOException {
+    public ResponseEntity addQuestion(QuesRegisterRequest quesRegisterRequest, List<MultipartFile> files) throws IOException {
 
-        Request request = Request.builder()
-                    .title(reqRegRequest.getTitle())
-                    .regUserNo(reqRegRequest.getRegUserNo())
-                    .dirUserNo(reqRegRequest.getDirUserNo())
-                    .content(reqRegRequest.getContent())
-                    .relatedUserNos(reqRegRequest.getRelatedUserNos())
-                    .projectType(reqRegRequest.getProjectType())
-                    .statusCd(reqRegRequest.getStatusCd())
-                    .requestType(reqRegRequest.getRequestType())
-                    .level(reqRegRequest.getLevel())
+        Question question = Question.builder()
+                    .title(quesRegisterRequest.getTitle())
+                    .regUserNo(quesRegisterRequest.getDirector())
+                    .dirUserNo(quesRegisterRequest.getDirector())
+                    .content(quesRegisterRequest.getContent())
+                    .relatedUserNos(quesRegisterRequest.getRelatedUserNos())
+                    .projectType(quesRegisterRequest.getProjectType())
+                    .statusCd(quesRegisterRequest.getStatusCd())
+                    .requestType(quesRegisterRequest.getRequestType())
+                    .level(quesRegisterRequest.getLevel())
                     .regDt(LocalDateTime.now())
                     .build();
 
-        requestRepository.save(request);
+        questionRepository.save(question);
 
         if (files != null) {
 
@@ -127,8 +124,10 @@ public class RequestService {
                         .fileId(fileId)
                         .filePath(filePath)
                         .regDt(LocalDateTime.now())
-                        .request(request)
+                        .question(question)
                         .build();
+
+                // 각각의 파일들을 하나로 묶어서 전송하기
 
                 fileRepository.save(attachedFile);
             }
@@ -136,29 +135,29 @@ public class RequestService {
 
         // 담당자, 관련자에게 메일을 보내야 한다.
 
-        return ResponseEntity.ok().body(request);
+        return ResponseEntity.ok().body(question);
     }
 
 
     // 요청사항 수정
     @Transactional
-    public ResponseEntity updateRequest(Long reqNo, ReqUpdateRequest reqUpdateRequest) {
+    public ResponseEntity updateQuestion(Long reqNo, QuesUpdateRequest quesUpdateRequest) {
 
         // 로그인한 사용자와 담당자가 같으면 요청 수정 가능
         // 토큰을 이용해서 로그인한 사용자(추후 추가)
 
-        Request request = Optional.ofNullable(requestRepository.getById(reqNo))
+        Question question = Optional.ofNullable(questionRepository.getById(reqNo))
                 .orElseThrow(IllegalArgumentException::new);
 
-        log.info("reqUpdateRequest.getDir.getNo = {}", reqUpdateRequest.getDirUserNo());
+        log.info("reqUpdateRequest.getDir.getNo = {}", quesUpdateRequest.getDirUserNo());
 
         try {
             // 해당 요청의 담당자의 번호가 로그인한 회원의 번호와 일치할 경우
-            if (reqUpdateRequest.getDirUserNo().equals(3L)) {
+            if (quesUpdateRequest.getDirUserNo().equals(3L)) {
 
-                request.update(reqUpdateRequest);
+                question.update(quesUpdateRequest);
 
-                return ResponseEntity.status(HttpStatus.OK).body(request);
+                return ResponseEntity.status(HttpStatus.OK).body(question);
             } else {
                 throw new IllegalArgumentException("잘못된 접근입니다.");
             }
@@ -174,7 +173,7 @@ public class RequestService {
     // 미해결 요청사항 조회
     // 상태코드가 CLOSE가 아닌 것은 다 가져온다.
     @Transactional
-    public ResponseEntity<List<ReqReadRequest>> getNotEndRequestList(Pageable pageable) {
+    public ResponseEntity<List<QuesReadRequest>> getNotEndQuestionList(Pageable pageable) {
 
         int page;
 
@@ -186,12 +185,12 @@ public class RequestService {
 
         pageable = (Pageable) PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "regDt"));
 
-        // Page
-        List<Request> requestList = requestRepository.findAllByStatusCdIsNot(StatusCd.CLOSE, pageable);
+        // Page 사용하기
+        Page<Question> requestList = questionRepository.findAllByStatusCdIsNot(StatusCd.CLOSE, pageable);
 
-        List<ReqReadRequest> reqReadRequestList
+        List<QuesReadRequest> reqReadRequestList
                 = requestList.stream()
-                .map(request -> new ReqReadRequest(
+                .map(request -> new QuesReadRequest(
                         request.getTitle(),
                         request.getDirUserNo(),
                         new ArrayList<>(),
@@ -213,11 +212,11 @@ public class RequestService {
     // 해결된 요청사항 조회
     // 상태코드가 CLOSE인 것 다 가져오기
     @Transactional
-    public ResponseEntity<List<ReqReadRequest>> getEndRequestList(Pageable pageable) {
+    public ResponseEntity<Page<Question>> getEndQuestionList(Pageable pageable) {
 
         int page;
 
-        if(pageable.getPageNumber() == 0) {
+        if (pageable.getPageNumber() == 0) {
             page = 0;
         } else {
             page = pageable.getPageNumber() - 1;
@@ -225,47 +224,26 @@ public class RequestService {
 
         pageable = (Pageable) PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "regDt"));
 
-        List<Request> requestList = requestRepository.findAllByStatusCd(StatusCd.CLOSE, pageable);
+        Page<Question> questions = questionRepository.findAllByStatusCd(StatusCd.CLOSE, pageable);
 
-        List<ReqReadRequest> reqReadRequestList
-                = requestList.stream()
-                .map(request -> new ReqReadRequest(
-                        request.getTitle(),
-                        request.getDirUserNo(),
-                        new ArrayList<>(),
-                        request.getContent(),
-                        new ArrayList<>(),
-                        ProjectType.APL,
-                        StatusCd.CLOSE,
-                        RequestType.REQUEST_DATA,
-                        Level.EMERGENCY,
-                        request.getRegDt()
-                        )).collect(Collectors.toList());
-
-        return ResponseEntity.status(HttpStatus.OK).body(reqReadRequestList);
-    }
-
-    public ResponseEntity testRequest(String title , String content) {
-
-        return ResponseEntity.status(HttpStatus.OK).body(title);
-
-    }
-
-    // 미해결이면서 나에게 할당된 요청사항 조회
-//    @Transactional
-//    public ResponseEntity<List<ReqReadRequest>> getNotEndMyRequestList() {
+//        Page<QuesReadRequest> quesReadRequestList
+//                = questions.stream()
+//                .map(question -> new QuesReadRequest(
+//                        question.getTitle(),
+//                        question.getDirUserNo(),
+//                        new ArrayList<>(),
+//                        question.getContent(),
+//                        new ArrayList<>(),
+//                        ProjectType.APL,
+//                        StatusCd.CLOSE,
+//                        RequestType.REQUEST_DATA,
+//                        Level.EMERGENCY,
+//                        question.getRegDt()
+//                        )).collect(Collectors.toList());
 //
-//        // 로그인한 사용자와 담당자가 같아야 한다.
-//        // 상태가 CLOSE가 아니어야 한다.
-//        // SQL에서 CLOSE가 아닌 모든 것을 가져오는 것을 JPQL로 가져와야한다????
-//
-//
-//
-//
-//        return ResponseEntity.ok();
-//
+//        return ResponseEntity.status(HttpStatus.OK).body(quesReadRequestList);
 //    }
 
-
-
+        return ResponseEntity.status(HttpStatus.OK).body(questions);
+    }
 }

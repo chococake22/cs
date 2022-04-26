@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReqReadRequest {
+public class QuesReadRequest {
 
     // 고유 아이디 추가(수정, 삭제 가능)
 

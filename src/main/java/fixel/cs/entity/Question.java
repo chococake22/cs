@@ -1,33 +1,34 @@
 package fixel.cs.entity;
 
-import fixel.cs.dto.request.ReqUpdateRequest;
+import fixel.cs.dto.request.QuesUpdateRequest;
 import fixel.cs.type.Level;
 import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
 import fixel.cs.type.StatusCd;
 
-import fixel.cs.util.LongToConverter;
+
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+
 import java.util.List;
 
-@Entity(name = "Request")
+@Entity(name = "Question")
+@Table(name = "Question")
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Request {
+public class Question {
 
     // 문의번호
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "request_no")
-    private Long requestNo; // db와 바로 매치될 수 있게 카멜로 변경
+    @Column(name = "question")
+    private Long questionNo; // db와 바로 매치될 수 있게 카멜로 변경
 
     // 제목
     private String title;
@@ -67,7 +68,7 @@ public class Request {
     @Column(updatable = false)
     private LocalDateTime regDt;
 
-    public void update(ReqUpdateRequest request) {
+    public void update(QuesUpdateRequest request) {
         this.dirUserNo = request.getDirUserNo();
         this.relatedUserNos = request.getRelatedUserNos();
         this.content = request.getContent();

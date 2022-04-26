@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity(name = "AttachedFile")
+@Table(name = "AttachedFile")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public class AttachedFile {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attachedfile_no")
-    private Long no;
+    private Long attachedFileNo;
     private String fileName;
 
     @JsonIgnore
@@ -27,9 +28,9 @@ public class AttachedFile {
     private LocalDateTime regDt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_no")
+    @JoinColumn(name = "question_no")
     @JsonIgnore
-    private Request request;
+    private Question question;
 
 
 }

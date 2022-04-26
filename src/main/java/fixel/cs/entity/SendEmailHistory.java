@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity(name = "SendEmailHistory")
+@Table(name = "SendEmailHistory")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -15,7 +16,7 @@ public class SendEmailHistory {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sendmailhistory_no")
-    private Long no;
+    private Long sendMailHistoryNo;
 
     private String userEmail;
 

@@ -18,11 +18,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReqRegisterRequest {
+public class QuesRegisterRequest {
 
-    private Long no;
     private String title;
-    private User director;
+    private Long director;
     private List<Long> relatedUserNos;
     private String content;
     private ProjectType projectType;

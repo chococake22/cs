@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity(name = "User")
+@Table(name = "User")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -15,7 +16,7 @@ public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_no")
-    private Long no;
+    private Long userNo;
 
     // 회원이메일(아이디)
     private String userEmail;

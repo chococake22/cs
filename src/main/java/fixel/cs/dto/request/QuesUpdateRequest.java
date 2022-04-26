@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReqUpdateRequest {
+public class QuesUpdateRequest {
 
     // 변경에 있어서 꼭 필요한 부분만 바꿀 수 있어야 한다.
     // 초기 기획에서 벗어나지 않아야 한다.
