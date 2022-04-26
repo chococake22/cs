@@ -30,4 +30,7 @@ public class UserController {
     public ResponseEntity login(@RequestBody UserLoginRequest request) {
         return userService.login(request);
     }
+
+    // 비밀번호 수정 필요
+    // 회원가입시 메일 발송 (임시 비밀번호)
 }

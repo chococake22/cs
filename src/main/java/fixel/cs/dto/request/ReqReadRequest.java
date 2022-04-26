@@ -20,6 +20,10 @@ import java.util.List;
 @Builder
 public class ReqReadRequest {
 
+    // 고유 아이디 추가(수정, 삭제 가능)
+
+    // 리스트에서 보여줄 정보들 가려내기
+
     private String title;   // 제목
     private User director;  // 담당자
     private List<Long> relatedUserNos;  // 관련자

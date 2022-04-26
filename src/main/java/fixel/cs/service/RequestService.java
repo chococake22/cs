@@ -17,7 +17,6 @@ import fixel.cs.util.FileWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,9 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +45,9 @@ public class RequestService {
     private final FileWriter fileWriter;
     private final ObjectMapper objectMapper;
 
-    // 임시 계정
+    // 임시 계정(로그인이 되었다고 가정)
+
+    // 로그인 이후 과정까지 생각해서 추가
     private static final Long userNo = 2L;
     private static final String userEmail = "test@test.com";
     private static final String password = "1234";
@@ -134,6 +134,8 @@ public class RequestService {
             }
         }
 
+        // 담당자, 관련자에게 메일을 보내야 한다.
+
         return ResponseEntity.ok().body(request);
     }
 
@@ -164,6 +166,8 @@ public class RequestService {
             log.info(e.getMessage());
         }
 
+        // 변경 내역을 생성할 수 있는 로직 추가
+
         return new ResponseEntity("????", HttpStatus.BAD_REQUEST);
     }
 
@@ -182,6 +186,7 @@ public class RequestService {
 
         pageable = (Pageable) PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "regDt"));
 
+        // Page
         List<Request> requestList = requestRepository.findAllByStatusCdIsNot(StatusCd.CLOSE, pageable);
 
         List<ReqReadRequest> reqReadRequestList
@@ -198,6 +203,8 @@ public class RequestService {
                         Level.EMERGENCY,
                         request.getRegDt()
                 )).collect(Collectors.toList());
+
+        // 리턴하기 위한 리턴 객체를 커스텀해서 보낼 수 있도록 수정 / ObjectMapper
 
         return ResponseEntity.status(HttpStatus.OK).body(reqReadRequestList);
 
@@ -236,6 +243,12 @@ public class RequestService {
                         )).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(reqReadRequestList);
+    }
+
+    public ResponseEntity testRequest(String title , String content) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(title);
+
     }
 
     // 미해결이면서 나에게 할당된 요청사항 조회
