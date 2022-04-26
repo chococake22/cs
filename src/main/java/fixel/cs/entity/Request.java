@@ -6,6 +6,7 @@ import fixel.cs.type.ProjectType;
 import fixel.cs.type.RequestType;
 import fixel.cs.type.StatusCd;
 
+import fixel.cs.util.LongToConverter;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -67,7 +68,7 @@ public class Request {
     private LocalDateTime regDt;
 
     public void update(ReqUpdateRequest request) {
-        this.dirUserNo = request.getDirector().getNo();
+        this.dirUserNo = request.getDirUserNo();
         this.relatedUserNos = request.getRelatedUserNos();
         this.content = request.getContent();
         this.projectType = request.getProjectType();

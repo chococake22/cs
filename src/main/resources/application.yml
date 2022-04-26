@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.0.32:3307/apl_golf_crm?serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/cs?serverTimezone=UTC&characterEncoding=UTF-8
     username: csadmin
     password: 1234
 
@@ -26,7 +26,11 @@ spring:
 
 FileUploadApp:
   file:
-    defaultPath: C:/Users/강혁/desktop/images
+    defaultPath: /Users/ganghyeog/Desktop/images
+
+#    C:/Users/강혁/desktop/images
+
+
 
 
 

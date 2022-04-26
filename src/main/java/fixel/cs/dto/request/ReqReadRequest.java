@@ -25,7 +25,7 @@ public class ReqReadRequest {
     // 리스트에서 보여줄 정보들 가려내기
 
     private String title;   // 제목
-    private User director;  // 담당자
+    private Long dirUserNo;  // 담당자
     private List<Long> relatedUserNos;  // 관련자
     private String content; // 내용
     private List<AttachedFile> fileList;    // 첨부파일

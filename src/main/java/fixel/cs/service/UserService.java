@@ -75,7 +75,7 @@ public class UserService {
 
         // Optional<User> user = userRepository.findByUserEmailAndPassword(request.getUserEmail(), request.getPassword());
 
-        // 비밀번호 검증
+        // 비밀번호가 같으면 로그인 검증
         if (passwordEncoder.matches(request.getPassword(), findUser.getPassword())) {
             return ResponseEntity.ok(findUser); // 더 티테일한 상태 전달 필요 ex Notfound
         } else {

@@ -23,7 +23,7 @@ public class ReqUpdateRequest {
     // 초기 기획에서 벗어나지 않아야 한다.
 
     private String title;
-    private User director;
+    private Long dirUserNo;
     private List<Long> relatedUserNos;
     private String content;
     private List<AttachedFile> fileList;
